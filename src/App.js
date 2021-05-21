@@ -1,23 +1,50 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import { Document, Page, Outline } from "react-pdf";
+import { pdfjs } from "react-pdf";
+const { PDFDataRangeTransport } = pdfjs;
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 function App() {
+  const [numPages, setNumPages] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
+
+  function onDocumentLoadSuccess({ numPages }) {
+    setNumPages(numPages);
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <p>
+        Page {pageNumber} of {numPages}
+      </p>
+      <button
+        onClick={() => {
+          setPageNumber(pageNumber -1);
+        }}
+      >
+        Previous Page
+      </button>
+      <button
+        onClick={() => {
+          setPageNumber(pageNumber +1);
+        }}
+      >
+        Next Page
+      </button>
+      <Document
+        file="somefile.pdf"
+        onLoadSuccess={onDocumentLoadSuccess}
+        options={{
+          disableAutoFetch: true,
+          disableStream: true,
+          httpHeaders: {
+            "Accept-Encoding": "identity",
+          },
+        }}
+      >
+        <Page pageNumber={pageNumber} />
+      </Document>
     </div>
   );
 }
